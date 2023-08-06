@@ -8,6 +8,8 @@ import base64
 
 def customcards_on_open(hashMap, _files=None, _data=None):
 
+    hashMap.put("toast", str("customcards_on_open"))
+
     ncl = noClass("base_nosql")
     keys = ncl.getallkeys()
 
@@ -55,6 +57,8 @@ def actions_on_input(hashMap, _files=None, _data=None):
         ncl.destroy()
     elif hashMap.get("listener") == "CardsClick":
         hashMap.put("ShowScreen", "Карточка птицы")
+    elif hashMap.get("listener") == "ON_BACK_PRESSED":
+        hashMap.put("ShowScreen", "Список птиц")
 
     return hashMap
 
@@ -75,6 +79,9 @@ def save_bird(hashMap):
                    }
     ncl.put(key, json.dumps(json_string, ensure_ascii=False), True)
 
+    hashMap.put("НазваниеПтицыНовое", "")
+    hashMap.put("ЦветПерьевНовый", "")
+    hashMap.put("photoGallery", "")
 
 def resize_base64_image(base64_string):
     try:
