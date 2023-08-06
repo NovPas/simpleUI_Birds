@@ -1,5 +1,4 @@
 import json
-import random
 from ru.travelfood.simple_ui import NoSQL as noClass
 from java import jclass
 from io import BytesIO
@@ -12,103 +11,17 @@ def customcards_on_open(hashMap, _files=None, _data=None):
     ncl = noClass("base_nosql")
     keys = ncl.getallkeys()
 
-    j = { "customcards":         {
-        "options" :{
-            "search_enabled" :True,
-            "save_position" :True
-        },
-        "layout": {
-            "type": "LinearLayout",
-            "orientation": "vertical",
-            "height": "match_parent",
-            "width": "match_parent",
-            "weight": "0",
-            "Elements": [
-                {
-                    "type": "LinearLayout",
-                    "orientation": "horizontal",
-                    "height": "wrap_content",
-                    "width": "match_parent",
-                    "weight": "0",
-                    "Elements": [
-                        {
-                            "type": "Picture",
-                            "show_by_condition": "",
-                            "Value": "@pic1",
-                            "NoRefresh": False,
-                            "document_type": "",
-                            "mask": "",
-                            "Variable": "",
-                            "TextSize": "16",
-                            "TextColor": "#DB7093",
-                            "TextBold": True,
-                            "TextItalic": False,
-                            "BackgroundColor": "",
-                            "width": "match_parent",
-                            "height": "wrap_content",
-                            "weight": 1
-                        },
-                        {
-                            "type": "TextView",
-                            "show_by_condition": "",
-                            "Value": "@val",
-                            "NoRefresh": False,
-                            "document_type": "",
-                            "mask": "",
-                            "Variable": "",
-                            "TextSize": "16",
-                            "TextColor": "#DB7093",
-                            "TextBold": True,
-                            "TextItalic": False,
-                            "BackgroundColor": "",
-                            "width": "match_parent",
-                            "height": "wrap_content",
-                            "weight": 1
-                        },
-                        {
-                            "type": "LinearLayout",
-                            "orientation": "vertical",
-                            "height": "wrap_content",
-                            "width": "match_parent",
-                            "weight": "2",
-                            "Elements": [
-                                {
-                                    "type": "TextView",
-                                    "show_by_condition": "",
-                                    "Value": "@string1",
-                                    "NoRefresh": False,
-                                    "document_type": "",
-                                    "mask": "",
-                                    "Variable": ""
-                                },
-                                {
-                                    "type": "TextView",
-                                    "show_by_condition": "",
-                                    "Value": "@string2",
-                                    "NoRefresh": False,
-                                    "document_type": "",
-                                    "mask": "",
-                                    "Variable": ""
-                                },
-                            ]
-                        }
-                    ]
-                }
-             ]
-        }
+    customcards = get_customcards_settings()
 
-    }
-    }
-
-    j["customcards"]["cardsdata"] =[]
+    customcards["customcards"]["cardsdata"] =[]
     jkeys = json.loads(keys)
     for k in jkeys:
         c = json.loads(ncl.get(k))
         c['key'] = k
-        j["customcards"]["cardsdata"].append(c)
+        customcards["customcards"]["cardsdata"].append(c)
 
     if not hashMap.containsKey("cards"):
-        hashMap.put("cards", json.dumps(j, ensure_ascii=False).encode('utf8').decode())
+        hashMap.put("cards", json.dumps(customcards, ensure_ascii=False).encode('utf8').decode())
 
     return hashMap
 
@@ -187,3 +100,94 @@ def resize_base64_image(base64_string):
     except Exception as e:
         print("Error occurred:", str(e))
         return ""
+
+
+def get_customcards_settings():
+    return \
+        {"customcards": {
+            "options": {
+                "search_enabled": True,
+                "save_position": True
+            },
+            "layout": {
+                "type": "LinearLayout",
+                "orientation": "vertical",
+                "height": "match_parent",
+                "width": "match_parent",
+                "weight": "0",
+                "Elements": [
+                    {
+                        "type": "LinearLayout",
+                        "orientation": "horizontal",
+                        "height": "wrap_content",
+                        "width": "match_parent",
+                        "weight": "0",
+                        "Elements": [
+                            {
+                                "type": "Picture",
+                                "show_by_condition": "",
+                                "Value": "@pic1",
+                                "NoRefresh": False,
+                                "document_type": "",
+                                "mask": "",
+                                "Variable": "",
+                                "TextSize": "16",
+                                "TextColor": "#DB7093",
+                                "TextBold": True,
+                                "TextItalic": False,
+                                "BackgroundColor": "",
+                                "width": "match_parent",
+                                "height": "wrap_content",
+                                "weight": 1
+                            },
+                            {
+                                "type": "TextView",
+                                "show_by_condition": "",
+                                "Value": "@val",
+                                "NoRefresh": False,
+                                "document_type": "",
+                                "mask": "",
+                                "Variable": "",
+                                "TextSize": "16",
+                                "TextColor": "#DB7093",
+                                "TextBold": True,
+                                "TextItalic": False,
+                                "BackgroundColor": "",
+                                "width": "match_parent",
+                                "height": "wrap_content",
+                                "weight": 1
+                            },
+                            {
+                                "type": "LinearLayout",
+                                "orientation": "vertical",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "2",
+                                "Elements": [
+                                    {
+                                        "type": "TextView",
+                                        "show_by_condition": "",
+                                        "Value": "@string1",
+                                        "NoRefresh": False,
+                                        "document_type": "",
+                                        "mask": "",
+                                        "Variable": ""
+                                    },
+                                    {
+                                        "type": "TextView",
+                                        "show_by_condition": "",
+                                        "Value": "@string2",
+                                        "NoRefresh": False,
+                                        "document_type": "",
+                                        "mask": "",
+                                        "Variable": ""
+                                    },
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+
+        }
+        }
