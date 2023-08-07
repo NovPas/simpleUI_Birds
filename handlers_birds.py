@@ -43,6 +43,18 @@ def card_on_open(hashMap, _files=None, _data=None):
     return hashMap
 
 
+def menu_input(hashMap,_files=None,_data=None):
+    if hashMap.get("listener") == "menu":
+        if hashMap.get("menu") == "Список всех птиц":
+            hashMap.put("ShowScreen", "Список птиц")
+        elif hashMap.get("menu") == "Птицы которых я видел":
+            hashMap.put("ShowScreen", "Птицы которых я видел")
+    elif hashMap.get("listener") == "ON_BACK_PRESSED":
+        hashMap.put("FinishProcess", "")
+
+    return hashMap
+
+
 def actions_on_input(hashMap, _files=None, _data=None):
 
     hashMap.put("toast", "hashMap.get(listener): " + hashMap.get("listener"))
@@ -58,7 +70,11 @@ def actions_on_input(hashMap, _files=None, _data=None):
     elif hashMap.get("listener") == "CardsClick":
         hashMap.put("ShowScreen", "Карточка птицы")
     elif hashMap.get("listener") == "ON_BACK_PRESSED":
-        hashMap.put("ShowScreen", "Список птиц")
+        current_screen_name = hashMap.get("current_screen_name")
+        if current_screen_name == "Список птиц":
+            hashMap.put("ShowScreen", "Начальное меню")
+        elif current_screen_name == "Карточка птицы" or current_screen_name == "Добавить птицу":
+            hashMap.put("ShowScreen", "Список птиц")
 
     return hashMap
 
