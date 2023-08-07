@@ -8,12 +8,7 @@ import base64
 from datetime import datetime
 
 
-saw_bird = ''
-
-
 def customcards_on_open(hashMap, _files=None, _data=None):
-
-    hashMap.put("toast", str("customcards_on_open"))
 
     ncl = noClass("base_nosql")
     keys = ncl.getallkeys()
@@ -27,15 +22,12 @@ def customcards_on_open(hashMap, _files=None, _data=None):
         c['key'] = k
         customcards["customcards"]["cardsdata"].append(c)
 
-    # if not hashMap.containsKey("cards"):
     hashMap.put("cards", json.dumps(customcards, ensure_ascii=False).encode('utf8').decode())
 
     return hashMap
 
 
 def card_on_open(hashMap, _files=None, _data=None):
-
-    hashMap.put("toast", str(hashMap.get("selected_card_key")))
 
     ncl = noClass("base_nosql")
     k = str(hashMap.get("selected_card_key"))
@@ -62,17 +54,12 @@ def menu_input(hashMap,_files=None,_data=None):
 
 def actions_on_input(hashMap, _files=None, _data=None):
 
-    global saw_bird
-
-    hashMap.put("toast", "hashMap.get(listener): " + hashMap.get("listener"))
-
     if hashMap.get("listener") == "btn_add":
         hashMap.put("ShowScreen", "Добавить птицу")
     elif hashMap.get("listener") == "btn_saw":
-        saw_bird = str(hashMap.get("НазваниеПтицы"))
-        hashMap.put("saw_bird", saw_bird)
+        hashMap.put("saw_bird", str(hashMap.get("НазваниеПтицы")))
     elif hashMap.get("listener") == "add_saw_bird":
-        insert_data(hashMap, saw_bird)
+        insert_data(hashMap, str(hashMap.get("saw_bird")))
     elif hashMap.get("listener") == "save":
         save_bird(hashMap)
         hashMap.put("ShowScreen", "Список птиц")
@@ -125,7 +112,6 @@ def insert_data(hashMap, name):
 
     # Получаем количество
     res = sql.SQLQuery("SELECT MAX(amount) amount FROM seeing_birds", "")
-    hashMap.put("toast", res)
     records = json.loads(res)
     for record in records:
         if isinstance(record['amount'], int):
@@ -154,27 +140,16 @@ def insert_data(hashMap, name):
 
 def resize_base64_image(base64_string):
     try:
-        # Decode base64 string into binary data
         decoded_data = base64.b64decode(base64_string)
-
-        # Open the image using PIL
         image = Image.open(BytesIO(decoded_data))
-
-        # Resize the image to 100x100 pixels
         size = (160, 160)
         image = image.resize(size, Image.ANTIALIAS)
-
-        # Convert the resized image back to binary data
         buffer = BytesIO()
         image.save(buffer, format="PNG")
         resized_image_data = buffer.getvalue()
-
-        # Encode the resized image data back to base64
         resized_base64_string = base64.b64encode(resized_image_data).decode("utf-8")
-
         return resized_base64_string
     except Exception as e:
-        print("Error occurred:", str(e))
         return ""
 
 
