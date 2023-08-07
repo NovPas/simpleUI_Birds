@@ -1,9 +1,14 @@
 import json
 from ru.travelfood.simple_ui import NoSQL as noClass
+from ru.travelfood.simple_ui import SimpleSQLProvider as sqlClass
 from java import jclass
 from io import BytesIO
 from PIL import Image
 import base64
+from datetime import datetime
+
+
+saw_bird = ''
 
 
 def customcards_on_open(hashMap, _files=None, _data=None):
@@ -22,8 +27,8 @@ def customcards_on_open(hashMap, _files=None, _data=None):
         c['key'] = k
         customcards["customcards"]["cardsdata"].append(c)
 
-    if not hashMap.containsKey("cards"):
-        hashMap.put("cards", json.dumps(customcards, ensure_ascii=False).encode('utf8').decode())
+    # if not hashMap.containsKey("cards"):
+    hashMap.put("cards", json.dumps(customcards, ensure_ascii=False).encode('utf8').decode())
 
     return hashMap
 
@@ -48,7 +53,7 @@ def menu_input(hashMap,_files=None,_data=None):
         if hashMap.get("menu") == "Список всех птиц":
             hashMap.put("ShowScreen", "Список птиц")
         elif hashMap.get("menu") == "Птицы которых я видел":
-            hashMap.put("ShowScreen", "Птицы которых я видел")
+            hashMap.put("ShowScreen", "Виденные птицы")
     elif hashMap.get("listener") == "ON_BACK_PRESSED":
         hashMap.put("FinishProcess", "")
 
@@ -57,10 +62,17 @@ def menu_input(hashMap,_files=None,_data=None):
 
 def actions_on_input(hashMap, _files=None, _data=None):
 
+    global saw_bird
+
     hashMap.put("toast", "hashMap.get(listener): " + hashMap.get("listener"))
 
     if hashMap.get("listener") == "btn_add":
         hashMap.put("ShowScreen", "Добавить птицу")
+    elif hashMap.get("listener") == "btn_saw":
+        saw_bird = str(hashMap.get("НазваниеПтицы"))
+        hashMap.put("saw_bird", saw_bird)
+    elif hashMap.get("listener") == "add_saw_bird":
+        insert_data(hashMap, saw_bird)
     elif hashMap.get("listener") == "save":
         save_bird(hashMap)
         hashMap.put("ShowScreen", "Список птиц")
@@ -71,7 +83,7 @@ def actions_on_input(hashMap, _files=None, _data=None):
         hashMap.put("ShowScreen", "Карточка птицы")
     elif hashMap.get("listener") == "ON_BACK_PRESSED":
         current_screen_name = hashMap.get("current_screen_name")
-        if current_screen_name == "Список птиц":
+        if current_screen_name == "Список птиц" or current_screen_name == "Виденные птицы":
             hashMap.put("ShowScreen", "Начальное меню")
         elif current_screen_name == "Карточка птицы" or current_screen_name == "Добавить птицу":
             hashMap.put("ShowScreen", "Список птиц")
@@ -98,6 +110,47 @@ def save_bird(hashMap):
     hashMap.put("НазваниеПтицыНовое", "")
     hashMap.put("ЦветПерьевНовый", "")
     hashMap.put("photoGallery", "")
+
+
+def init_on_start(hashMap,_files=None,_data=None):
+    hashMap.put("SQLConnectDatabase", "test1.DB")
+    hashMap.put("SQLExec", json.dumps({"query": "CREATE TABLE IF NOT EXISTS seeing_birds (id integer primary key autoincrement, datetime DATETIME NOT NULL, name TEXT, photo BLOB, amount INTEGER)", "params": ""}))
+    return hashMap
+
+def insert_data(hashMap, name):
+
+    previous_amount = 0
+
+    sql = sqlClass()
+
+    # Получаем количество
+    res = sql.SQLQuery("SELECT MAX(amount) amount FROM seeing_birds", "")
+    hashMap.put("toast", res)
+    records = json.loads(res)
+    for record in records:
+        if isinstance(record['amount'], int):
+            previous_amount = record['amount']
+        else:
+            previous_amount = 0
+    new_amount = previous_amount + 1
+
+    # Получаем фото
+    ncl = noClass("base_nosql")
+    c = json.loads(ncl.get(name))
+    photo_data = c['pic1']
+
+    # Получаем Дату
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Записываем
+    success = sql.SQLExec('''
+        INSERT INTO seeing_birds (datetime, name, photo, amount)
+        VALUES (?, ?, ?, ?)
+        ''', (str(current_datetime)+","+str(name)+","+str(photo_data)+","+str(new_amount)))
+
+    if success:
+        hashMap.put("toast", "Птица успешно добавлена!!!")
+
 
 def resize_base64_image(base64_string):
     try:
