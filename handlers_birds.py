@@ -106,12 +106,17 @@ def init_on_start(hashMap,_files=None,_data=None):
 
 def insert_data(hashMap, name):
 
+    if str(name) == 'None':
+        hashMap.put("toast", "Выберите птицу")
+        return
+
     previous_amount = 0
 
     sql = sqlClass()
 
     # Получаем количество
-    res = sql.SQLQuery("SELECT MAX(amount) amount FROM seeing_birds", "")
+    # res = sql.SQLQuery("SELECT MAX(amount) amount FROM seeing_birds", "")
+    res = sql.SQLQuery("SELECT MAX(amount) amount FROM seeing_birds WHERE name = \"" + name + "\"", "")
     records = json.loads(res)
     for record in records:
         if isinstance(record['amount'], int):
